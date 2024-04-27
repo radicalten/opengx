@@ -582,7 +582,7 @@ void glBindTexture(GLenum target, GLuint texture)
 
 void glDeleteTextures(GLsizei n, const GLuint *textures)
 {
-    GLuint *texlist = textures;
+    const GLuint *texlist = textures;
     GX_DrawDone();
     while (n-- > 0) {
         int i = *texlist++;
