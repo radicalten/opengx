@@ -32,6 +32,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef OGX_STATE_H
 #define OGX_STATE_H
 
+#include "arrays.h"
+
 #include <GL/gl.h>
 #include <gccore.h>
 
@@ -99,8 +101,7 @@ typedef struct glparams_
     uint16_t hit_count;
 
     void *index_array;
-    float *vertex_array, *texcoord_array, *normal_array, *color_array;
-    int vertex_stride, color_stride, index_stride, texcoord_stride, normal_stride;
+    OgxArrayReader vertex_array, texcoord_array, normal_array, color_array;
     struct client_state
     {
         unsigned vertex_enabled : 1;
