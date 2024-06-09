@@ -2611,6 +2611,8 @@ void glLightModelf(GLenum pname, GLfloat param) {}
 void glLightModeli(GLenum pname, GLint param) {}
 void glPushAttrib(GLbitfield mask) {}
 void glPopAttrib(void) {}
+void glPushClientAttrib(GLbitfield mask) {}
+void glPopClientAttrib(void) {}
 void glPolygonMode(GLenum face, GLenum mode) {}
 void glReadBuffer(GLenum mode) {}
 void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *data) {}
