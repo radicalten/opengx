@@ -76,6 +76,7 @@ typedef struct glparams_
     unsigned char zwrite, ztest, zfunc;
     unsigned char matrixmode;
     unsigned char frontcw, cullenabled;
+    uint8_t alpha_func, alpha_ref, alphatest_enabled;
     uint16_t texture_env_mode;
     /* There should be 4 of these (for S, T, R, Q) but GX uses a single
      * transformation for all of them */
@@ -117,6 +118,7 @@ typedef struct glparams_
     {
         struct dirty_struct
         {
+            unsigned dirty_alphatest : 1;
             unsigned dirty_blend : 1;
             unsigned dirty_z : 1;
             unsigned dirty_matrices : 1;
