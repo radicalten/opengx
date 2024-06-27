@@ -36,7 +36,7 @@ jobs:
         make && sudo make install
     - name: Compile
       run: |
-        cd nehe_lessons/lesson07
+        cd .
         make -f Makefile.wiiopengx -j$(nproc)
     - name: Upload
       uses: actions/upload-artifact@v4
