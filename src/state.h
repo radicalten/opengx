@@ -52,7 +52,12 @@ POSSIBILITY OF SUCH DAMAGE.
  * needed */
 #define MAX_CLIP_PLANES 6
 
-typedef float VertexData[12];
+typedef struct {
+    float pos[3];
+    float norm[3];
+    float tex[2];
+    GXColor color;
+} VertexData;
 
 typedef float ClipPlane[4];
 
