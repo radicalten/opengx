@@ -2353,6 +2353,11 @@ void glDrawArrays(GLenum mode, GLint first, GLsizei count)
         glparamstate.current_call_list.execution_depth == 0) {
         _ogx_call_list_append(COMMAND_GXLIST);
     } else {
+        if (glparamstate.stencil.enabled) {
+            OgxDrawData draw_data = { gxmode, first, count };
+            _ogx_stencil_draw(flat_draw_geometry, &draw_data);
+        }
+
         should_draw = _ogx_setup_render_stages();
         _ogx_apply_state();
 
@@ -2376,11 +2381,6 @@ void glDrawArrays(GLenum mode, GLint first, GLsizei count)
                             color_provide, texen);
         glparamstate.draw_count++;
     }
-
-    if (glparamstate.stencil.enabled) {
-        OgxDrawData draw_data = { gxmode, first, count };
-        _ogx_stencil_draw(flat_draw_geometry, &draw_data);
-    }
 }
 
 void glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices)
@@ -2396,6 +2396,11 @@ void glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indic
         glparamstate.current_call_list.execution_depth == 0) {
         _ogx_call_list_append(COMMAND_GXLIST);
     } else {
+        if (glparamstate.stencil.enabled) {
+            OgxDrawElementsData draw_data = { gxmode, count, type, indices };
+            _ogx_stencil_draw(flat_draw_elements, &draw_data);
+        }
+
         should_draw = _ogx_setup_render_stages();
         _ogx_apply_state();
         /* When not building a display list, we can optimize the drawing by
@@ -2417,11 +2422,6 @@ void glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indic
         draw_elements_general(gxmode, count, type, indices,
                               glparamstate.cs.normal_enabled, color_provide, texen);
         glparamstate.draw_count++;
-    }
-
-    if (glparamstate.stencil.enabled) {
-        OgxDrawElementsData draw_data = { gxmode, count, type, indices };
-        _ogx_stencil_draw(flat_draw_elements, &draw_data);
     }
 }
 
