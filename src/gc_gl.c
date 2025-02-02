@@ -521,6 +521,7 @@ static void scene_load_from_efb()
 {
     if (!s_efb_scene_buffer) return;
     _ogx_efb_restore_texobj(&s_efb_scene_buffer->texobj);
+    _ogx_setup_3D_projection();
 }
 
 /* This function might fit best in efb.c, but since it uses symbols from other
@@ -2449,7 +2450,7 @@ bool _ogx_setup_render_stages()
     return should_draw;
 }
 
-static inline void apply_state_fixed_pipeline()
+static inline void update_matrices_fixed_pipeline()
 {
     // Matrix stuff
     if (glparamstate.dirty.bits.dirty_matrices) {
@@ -2512,10 +2513,6 @@ void _ogx_apply_state()
 
     if (glparamstate.dirty.bits.dirty_scissor) {
         update_scissor();
-    }
-
-    if (!glparamstate.current_program) {
-        apply_state_fixed_pipeline();
     }
 
     /* Reset the updated bits to 0. We don't unconditionally reset everything
@@ -2645,6 +2642,15 @@ static bool setup_draw(const OgxDrawData *draw_data)
     return true;
 }
 
+void _ogx_update_matrices()
+{
+    if (!glparamstate.current_program) {
+        update_matrices_fixed_pipeline();
+    } else {
+        _ogx_shader_setup_matrices();
+    }
+}
+
 void glDrawArrays(GLenum mode, GLint first, GLsizei count)
 {
     OgxDrawMode gxmode = _ogx_draw_mode(mode);
@@ -2661,6 +2667,7 @@ void glDrawArrays(GLenum mode, GLint first, GLsizei count)
     /* If VBOs are in use, make sure their data has been updated */
     ppcsync();
 
+    _ogx_update_matrices();
     OgxDrawData draw_data = { gxmode, count, first, };
     if (glparamstate.stencil.enabled) {
         _ogx_gpu_resources_push();
@@ -2696,6 +2703,7 @@ void glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indic
     /* If VBOs are in use, make sure their data has been updated */
     ppcsync();
 
+    _ogx_update_matrices();
     OgxDrawData draw_data = { gxmode, count, 0, type, indices };
     if (glparamstate.stencil.enabled) {
         _ogx_gpu_resources_push();
