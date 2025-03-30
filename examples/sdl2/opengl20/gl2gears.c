@@ -46,6 +46,10 @@
 
 #define _GNU_SOURCE
 
+#if defined(__wii__) || defined(__gamecube__)
+#include "opengx_shaders.h"
+#endif
+
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
