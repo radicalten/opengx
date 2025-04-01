@@ -414,14 +414,12 @@ static void update_texture(const void *data, int level, GLenum format, GLenum ty
         dst_addr += offset;
 
         int dstpitch = _ogx_pitch_for_width(ti->format, ti->width >> level);
+
+        uint32_t gx_format = ti->format;
+        if (gx_format == GX_TF_I8 && ti->ud.d.is_alpha)
+            gx_format = GX_TF_A8;
         _ogx_bytes_to_texture(data, format, type, width, height,
-                              dst_addr, ti->format, x, y, dstpitch);
-        /* GX_TF_A8 is not supported by Dolphin and it's not properly handed by
-         * a real Wii either. */
-        if (ti->format == GX_TF_A8) {
-            ti->format = GX_TF_I8;
-            ti->ud.d.is_alpha = 1; /* Remember that we wanted alpha, though */
-        }
+                              dst_addr, gx_format, x, y, dstpitch);
     } else {
         // Compressed texture
         if (x != 0 || y != 0 || ti->width != width) {
@@ -453,11 +451,6 @@ static void update_texture(const void *data, int level, GLenum format, GLenum ty
     // Slow but necessary! The new textures may be in the same region of some old cached textures
     GX_InvalidateTexAll();
 
-    GX_InitTexObj(obj, ti->texels,
-                  ti->width, ti->height, ti->format, ti->wraps, ti->wrapt, GX_TRUE);
-    GX_InitTexObjLOD(obj, ti->min_filter, ti->mag_filter,
-                     ti->minlevel, ti->maxlevel, 0, GX_ENABLE, GX_ENABLE, GX_ANISO_1);
-    GX_InitTexObjUserData(obj, ti->ud.ptr);
     glparamstate.dirty.bits.dirty_tev = 1;
 }
 
@@ -475,6 +468,7 @@ void glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
                    // This way we are sure that we are not modifying a texture which is being drawn
 
     gltexture_ *currtex = &texture_list[tex_id];
+    GXTexObj *texobj = &currtex->texobj;
 
     uint8_t gx_format = _ogx_find_best_gx_format(format, internalFormat,
                                                  width, height);
@@ -485,8 +479,15 @@ void glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
     int he = calc_original_size(level, height);
 
     TextureInfo ti;
-    texture_get_info(&currtex->texobj, &ti);
+    texture_get_info(texobj, &ti);
     ti.format = gx_format;
+    /* GX_TF_A8 is not supported by Dolphin and it's not properly handed by
+     * a real Wii either. */
+    if (ti.format == GX_TF_A8) {
+        ti.format = gx_format = GX_TF_I8;
+        ti.ud.d.is_alpha = 1; /* Remember that we wanted alpha, though */
+    }
+
     ti.ud.d.is_reserved = 1;
     char onelevel = ti.minlevel == 0 && ti.maxlevel == 0;
 
@@ -533,8 +534,16 @@ void glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
         free(oldbuf);
     }
 
-    update_texture(data, level, format, type, width, height,
-                   &currtex->texobj, &ti, 0, 0);
+    if (data) {
+        update_texture(data, level, format, type, width, height,
+                       texobj, &ti, 0, 0);
+    }
+
+    GX_InitTexObj(texobj, ti.texels,
+                  ti.width, ti.height, ti.format, ti.wraps, ti.wrapt, GX_TRUE);
+    GX_InitTexObjLOD(texobj, ti.min_filter, ti.mag_filter,
+                     ti.minlevel, ti.maxlevel, 0, GX_ENABLE, GX_ENABLE, GX_ANISO_1);
+    GX_InitTexObjUserData(texobj, ti.ud.ptr);
 }
 
 void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset,
