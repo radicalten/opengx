@@ -196,7 +196,7 @@ void glAccum(GLenum op, GLfloat value)
 
     if (op == GL_RETURN && value == 1.0f) {
         /* Just leave the accumulation buffer on the scene, since it doesn't
-         * leave to be altered */
+         * need to be altered */
         _ogx_efb_content_type = OGX_EFB_SCENE;
     } else {
         /* We must render the contents of the accumulation buffer with an
