@@ -508,7 +508,7 @@ void _ogx_setup_3D_projection()
     update_projection_matrix();
 }
 
-static void scene_save_to_efb()
+static void scene_save_from_efb()
 {
     _ogx_efb_buffer_prepare(&s_efb_scene_buffer, GX_TF_RGBA8);
     if (s_efb_scene_buffer->draw_count == glparamstate.draw_count) return;
@@ -518,7 +518,7 @@ static void scene_save_to_efb()
     s_efb_scene_buffer->draw_count = glparamstate.draw_count;
 }
 
-static void scene_load_from_efb()
+static void scene_load_into_efb()
 {
     if (!s_efb_scene_buffer) return;
     _ogx_efb_restore_texobj(&s_efb_scene_buffer->texobj);
@@ -533,20 +533,20 @@ void _ogx_efb_set_content_type_real(OgxEfbContentType content_type)
     /* Save existing EFB contents, if needed */
     switch (_ogx_efb_content_type) {
     case OGX_EFB_SCENE:
-        scene_save_to_efb();
+        scene_save_from_efb();
         break;
     case OGX_EFB_STENCIL:
-        _ogx_stencil_save_to_efb();
+        _ogx_stencil_save_from_efb();
         break;
     case OGX_EFB_ACCUM:
-        _ogx_accum_save_to_efb();
+        _ogx_accum_save_from_efb();
         break;
     }
 
     /* Restore data from previously stored EFB for this content type */
     switch (content_type) {
     case OGX_EFB_SCENE:
-        scene_load_from_efb();
+        scene_load_into_efb();
         break;
     case OGX_EFB_STENCIL:
         _ogx_stencil_load_into_efb();

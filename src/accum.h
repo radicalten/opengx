@@ -33,7 +33,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define OPENGX_ACCUM_H
 
 void _ogx_accum_clear(void);
-void _ogx_accum_save_to_efb(void);
+void _ogx_accum_save_from_efb(void);
 void _ogx_accum_load_into_efb(void);
 
 #endif /* OPENGX_ACCUM_H */

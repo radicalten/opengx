@@ -147,7 +147,7 @@ void _ogx_accum_load_into_efb()
     _ogx_efb_restore_texobj(&s_accum_buffer->texobj);
 }
 
-void _ogx_accum_save_to_efb()
+void _ogx_accum_save_from_efb()
 {
     GX_DrawDone();
     _ogx_efb_buffer_save(s_accum_buffer, OGX_EFB_COLOR);

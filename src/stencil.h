@@ -58,7 +58,7 @@ typedef void (*OgxStencilDrawCallback)(void *data);
 void _ogx_stencil_draw(OgxStencilDrawCallback callback, void *cb_data);
 
 void _ogx_stencil_load_into_efb();
-void _ogx_stencil_save_to_efb();
+void _ogx_stencil_save_from_efb();
 
 OgxEfbBuffer *_ogx_stencil_get_buffer(void);
 

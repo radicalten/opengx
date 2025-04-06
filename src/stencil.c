@@ -264,7 +264,7 @@ void _ogx_stencil_load_into_efb()
     _ogx_apply_state();
 }
 
-void _ogx_stencil_save_to_efb()
+void _ogx_stencil_save_from_efb()
 {
     GX_DrawDone();
     check_bounding_box();
