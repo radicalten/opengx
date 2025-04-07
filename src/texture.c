@@ -30,6 +30,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 *****************************************************************************/
 
+#include "texture.h"
+
 #include "call_lists.h"
 #include "debug.h"
 #include "image_DXT.h"
@@ -38,41 +40,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "utils.h"
 
 #include <malloc.h>
-
-/* The GX API allow storing a void * for user data into the GXTexObj; but for
- * now we don't need a pointer, just some bits of information. Let's store them
- * in the space reserved for the pointer, then. */
-typedef union {
-    void *ptr;
-    struct {
-        unsigned is_reserved: 1;
-        unsigned is_alpha: 1;
-    } d;
-} UserData;
-
-#define TEXTURE_USER_DATA(texobj) \
-    ((UserData)GX_GetTexObjUserData(texobj))
-#define TEXTURE_IS_USED(texture) \
-    (GX_GetTexObjData(&texture.texobj) != NULL)
-#define TEXTURE_IS_RESERVED(texture) \
-    (TEXTURE_USER_DATA(&texture.texobj).d.is_reserved)
-#define TEXTURE_RESERVE(texture) \
-    { \
-        GX_InitTexObj(&(texture).texobj, NULL, 0, 0, 0, \
-                      GX_REPEAT, GX_REPEAT, 0); \
-        UserData ud = { .ptr = NULL }; \
-        ud.d.is_reserved = 1; \
-        GX_InitTexObjUserData(&(texture).texobj, ud.ptr); \
-    }
-
-typedef struct {
-    void *texels;
-    uint16_t width, height;
-    uint8_t format, wraps, wrapt, mipmap;
-    uint8_t min_filter, mag_filter;
-    uint8_t minlevel, maxlevel;
-    UserData ud;
-} TextureInfo;
 
 static inline int curr_tex()
 {
@@ -133,7 +100,7 @@ static unsigned char gcgl_texwrap_conv(GLint param)
     };
 }
 
-static void texture_get_info(const GXTexObj *obj, TextureInfo *info)
+static void texture_get_info(const GXTexObj *obj, OgxTextureInfo *info)
 {
     GX_GetTexObjAll(obj, &info->texels,
                     &info->width, &info->height,
@@ -403,7 +370,7 @@ void glTexImage1D(GLenum target, GLint level, GLint internalFormat,
 
 static void update_texture(const void *data, int level, GLenum format, GLenum type,
                            int width, int height,
-                           GXTexObj *obj, TextureInfo *ti, int x, int y)
+                           GXTexObj *obj, OgxTextureInfo *ti, int x, int y)
 {
     unsigned char *dst_addr = ti->texels;
     // Inconditionally convert to 565 all inputs without alpha channel
@@ -478,7 +445,7 @@ void glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
     int wi = calc_original_size(level, width);
     int he = calc_original_size(level, height);
 
-    TextureInfo ti;
+    OgxTextureInfo ti;
     texture_get_info(texobj, &ti);
     ti.format = gx_format;
     /* GX_TF_A8 is not supported by Dolphin and it's not properly handed by
@@ -563,7 +530,7 @@ void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset,
 
     gltexture_ *currtex = &texture_list[tex_id];
 
-    TextureInfo ti;
+    OgxTextureInfo ti;
     texture_get_info(&currtex->texobj, &ti);
     if (level > ti.maxlevel) {
         /* OpenGL does not specify this as an error, so we should probably
