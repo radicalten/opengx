@@ -37,6 +37,7 @@ extern "C" {
 #endif
 
 #include <GL/gl.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 /* The GX API allow storing a void * for user data into the GXTexObj; but for
@@ -73,6 +74,8 @@ typedef struct {
     uint8_t minlevel, maxlevel;
     OgxTextureUserData ud;
 } OgxTextureInfo;
+
+bool _ogx_texture_get_info(GLuint texture_name, OgxTextureInfo *info);
 
 #ifdef __cplusplus
 } // extern C

@@ -126,6 +126,15 @@ static void texture_get_info(const GXTexObj *obj, OgxTextureInfo *info)
         info->format = GX_TF_A8;
 }
 
+bool _ogx_texture_get_info(GLuint texture_name, OgxTextureInfo *info)
+{
+    if (!TEXTURE_IS_RESERVED(texture_list[texture_name]))
+        return false;
+
+    texture_get_info(&texture_list[texture_name].texobj, info);
+    return true;
+}
+
 void glTexParameterf(GLenum target, GLenum pname, GLfloat param)
 {
     /* For the time being, all the parameters we support take integer values */
