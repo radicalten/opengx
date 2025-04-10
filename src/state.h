@@ -268,6 +268,7 @@ typedef struct glparams_
             unsigned dirty_cull : 1;
             unsigned dirty_fog : 1;
             unsigned dirty_scissor : 1;
+            unsigned dirty_viewport : 1;
             unsigned dirty_attributes : 1;
         } bits;
         unsigned int all;

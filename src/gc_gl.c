@@ -206,6 +206,24 @@ static void update_scissor()
     glparamstate.dirty.bits.dirty_scissor = 0;
 }
 
+static void update_viewport()
+{
+    int x = glparamstate.viewport[0];
+    int y = glparamstate.viewport[1];
+    int width = glparamstate.viewport[2];
+    int height = glparamstate.viewport[3];
+    if (_ogx_fbo_state.draw_target != 0) {
+        /* When rendering to a texture, we need to flip the picture vertically,
+         * since OpenGL textures have the Y coordinate growing from the bottom.
+         * It would be nicer if GX provided a way to flip the data during the
+         * GX_CopyTex() operation, but alas, it doesn't. */
+        y = height - y;
+        height = -height;
+    }
+    GX_SetViewport(x, y, width, height, 0.0f, 1.0f);
+    glparamstate.dirty.bits.dirty_viewport = 0;
+}
+
 int ogx_enable_double_buffering(int double_buffering)
 {
     int had_double_buffering = glparamstate.active_buffer == GL_BACK;
@@ -529,6 +547,9 @@ void _ogx_scene_load_into_efb()
         return;
     }
     _ogx_efb_set_pixel_format(GX_PF_RGB8_Z24);
+    if (glparamstate.dirty.bits.dirty_viewport) {
+        update_viewport();
+    }
     _ogx_efb_restore_texobj(&s_efb_scene_buffer->texobj);
     s_efb_scene_buffer->draw_count = glparamstate.draw_count;
     _ogx_setup_3D_projection();
@@ -1057,11 +1078,11 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
     glparamstate.viewport[1] = y;
     glparamstate.viewport[2] = width;
     glparamstate.viewport[3] = height;
-    GX_SetViewport(x, y, width, height, 0.0f, 1.0f);
     if (glparamstate.scissor[2] < 0) {
         glparamstate.scissor[2] = width;
         glparamstate.scissor[3] = height;
     }
+    glparamstate.dirty.bits.dirty_viewport = 1;
     glparamstate.dirty.bits.dirty_scissor = 1;
     if (_ogx_fbo_state.draw_target == 0) {
         _ogx_stencil_update();
@@ -1391,6 +1412,9 @@ void glClear(GLbitfield mask)
      * before (typically, a mouse cursor), we assume the scissor to be dirty
      * and reset it. */
     update_scissor();
+    if (glparamstate.dirty.bits.dirty_viewport) {
+        update_viewport();
+    }
 
     _ogx_efb_set_content_type(OGX_EFB_SCENE);
 
@@ -2510,6 +2534,10 @@ void _ogx_apply_state()
 
     if (glparamstate.dirty.bits.dirty_scissor) {
         update_scissor();
+    }
+
+    if (glparamstate.dirty.bits.dirty_viewport) {
+        update_viewport();
     }
 
     /* Reset the updated bits to 0. We don't unconditionally reset everything

@@ -119,6 +119,9 @@ static void set_draw_target(FboType fbo)
     _ogx_fbo_scene_save_from_efb(OGX_EFB_SCENE);
     _ogx_fbo_state.draw_target = fbo;
     _ogx_fbo_scene_load_into_efb();
+    /* We set the viewport upside down when the draw target is a texture, so
+     * make sure things are up to date. */
+    glparamstate.dirty.bits.dirty_viewport = 1;
 }
 
 static void set_read_target(FboType fbo)
