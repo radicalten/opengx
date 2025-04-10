@@ -340,7 +340,7 @@ void glDeleteProgram(GLuint program)
     if (p->user_data && p->cleanup_user_data_cb) {
         p->cleanup_user_data_cb(p->user_data);
     }
-    free(p->attributes);
+    free(p->uniform_data_base);
     free(p);
 }
 
