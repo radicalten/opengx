@@ -116,6 +116,7 @@ void glGetUniformiv(GLuint program, GLint location, GLint *params)
 static void set_uniform_values(GLint location, GLsizei count,
                                const void *src, size_t value_size)
 {
+    if (location < 0) return;
     for (int i = 0; i < count; i++) {
         OgxUniformData *data = get_uniform_data(location + i);
         memcpy(&data->data, src, value_size);
