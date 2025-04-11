@@ -799,7 +799,7 @@ void glLinkProgram(GLuint program)
     free(ptr_list);
 
     /* Clear the uniform data and compute the location offsets */
-    memset(p->uniform_data_base, 0, sizeof(uniform_data_size));
+    memset(p->uniform_data_base, 0, uniform_data_size);
     size_t current_offset = 0;
     uniform_location = 0;
     for (int i = 0; i < p->uniform_count; i++) {
