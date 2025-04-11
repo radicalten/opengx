@@ -931,6 +931,7 @@ void glVertexAttribPointer(GLuint index, GLint size, GLenum type,
         return;
     }
 
+    if ((GLint)index == -1) return;
     OgxVertexAttribState *v = &_ogx_shader_state.vertex_attribs[index];
     if (!v) return;
 
