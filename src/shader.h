@@ -132,6 +132,7 @@ struct _OgxProgram {
     void *user_data;
     OgxSetupDrawCb setup_draw_cb;
     OgxSetupMatricesCb setup_matrices_cb;
+    OgxDrawDoneCb draw_done_cb;
     OgxCleanupCb cleanup_user_data_cb;
 };
 
@@ -169,6 +170,7 @@ extern OgxShaderState _ogx_shader_state;
 void _ogx_shader_initialize();
 void _ogx_shader_setup_draw(const OgxDrawData *draw_data);
 void _ogx_shader_update_vertex_array_readers(OgxDrawMode mode);
+void _ogx_shader_draw_done();
 
 size_t _ogx_size_for_type(GLenum type);
 
@@ -193,6 +195,8 @@ void __attribute__((weak)) _ogx_shader_setup_draw(const OgxDrawData *)
 void __attribute__((weak)) _ogx_shader_update_vertex_array_readers(OgxDrawMode)
 {
 }
+
+void __attribute__((weak)) _ogx_shader_draw_done() {}
 
 OgxFunctions _ogx_shader_functions __attribute__((weak)) = { 0, NULL };
 

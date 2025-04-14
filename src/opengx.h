@@ -207,12 +207,15 @@ typedef void (*OgxCleanupCb)(void *data);
 typedef void (*OgxSetupDrawCb)(GLuint program, const OgxDrawData *draw_data,
                                void *user_data);
 typedef void (*OgxSetupMatricesCb)(GLuint program, void *user_data);
+typedef void (*OgxDrawDoneCb)(GLuint program, void *user_data);
 void ogx_shader_program_set_user_data(GLuint program,
                                       void *data, OgxCleanupCb cleanup);
 void ogx_shader_program_set_setup_matrices_cb(GLuint program,
                                               OgxSetupMatricesCb callback);
 void ogx_shader_program_set_setup_draw_cb(GLuint program,
                                           OgxSetupDrawCb callback);
+void ogx_shader_program_set_draw_done_cb(GLuint program,
+                                         OgxDrawDoneCb callback);
 
 /* These can be called from the setup_draw callback */
 void ogx_shader_setup_attribute_array(int index, uint8_t gx_attr,

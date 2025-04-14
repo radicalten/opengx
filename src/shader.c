@@ -1031,6 +1031,13 @@ void ogx_shader_program_set_setup_matrices_cb(
     p->setup_matrices_cb = setup_matrices;
 }
 
+void ogx_shader_program_set_draw_done_cb(
+    GLuint program, OgxDrawDoneCb draw_done)
+{
+    OgxProgram *p = PROGRAM_FROM_INT(program);
+    p->draw_done_cb = draw_done;
+}
+
 void *ogx_shader_get_data(GLuint shader)
 {
     OgxShader *s = SHADER_FROM_INT(shader);
@@ -1077,6 +1084,15 @@ void _ogx_shader_update_vertex_array_readers(OgxDrawMode mode)
             _ogx_array_add_constant_fv(v->gx_attribute, size,
                 _ogx_shader_state.vertex_attrib_data[index]);
         }
+    }
+}
+
+void _ogx_shader_draw_done()
+{
+    OgxProgram *p = PROGRAM_FROM_INT(glparamstate.current_program);
+
+    if (p->draw_done_cb) {
+        p->draw_done_cb(PROGRAM_TO_INT(p), p->user_data);
     }
 }
 

@@ -2637,6 +2637,12 @@ void _ogx_update_matrices()
     }
 }
 
+static void draw_done()
+{
+    _ogx_arrays_draw_done();
+    _ogx_shader_draw_done();
+}
+
 void glDrawArrays(GLenum mode, GLint first, GLsizei count)
 {
     OgxDrawMode gxmode = _ogx_draw_mode(mode);
@@ -2668,7 +2674,7 @@ void glDrawArrays(GLenum mode, GLint first, GLsizei count)
         draw_arrays_general(&draw_data);
         glparamstate.draw_count++;
     }
-    _ogx_arrays_draw_done();
+    draw_done();
 
     _ogx_gpu_resources_pop();
 }
@@ -2704,7 +2710,7 @@ void glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indic
         draw_elements_general(&draw_data);
         glparamstate.draw_count++;
     }
-    _ogx_arrays_draw_done();
+    draw_done();
 
     _ogx_gpu_resources_pop();
 }
