@@ -97,16 +97,16 @@ void glGetUniformiv(GLuint program, GLint location, GLint *params)
         params[0] = data->data.vec4i[0];
         break;
     case GL_BOOL_VEC4:
-        params[3] = data->data.vec4b[3];
+        params[3] = data->data.vec4i[3] != 0;
         // fall through
     case GL_BOOL_VEC3:
-        params[2] = data->data.vec4b[2];
+        params[2] = data->data.vec4i[2] != 0;
         // fall through
     case GL_BOOL_VEC2:
-        params[1] = data->data.vec4b[1];
+        params[1] = data->data.vec4i[1] != 0;
         // fall through
     case GL_BOOL:
-        params[0] = data->data.vec4b[0];
+        params[0] = data->data.vec4i[0] != 0;
         break;
     default:
         warning("glGetUniformiv unsupported type %04x", data->uniform->type);
