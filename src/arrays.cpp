@@ -146,14 +146,14 @@ static TemplateSelectionInfo select_template(GLenum type,
         break;
     case GX_VA_CLR0:
     case GX_VA_CLR1:
-        if (num_components == 4) {
-            info.format.type = GX_CLR_RGBA;
-            info.format.size = GX_RGBA8;
-        } else {
+        if (num_components == 3) {
             info.format.type = GX_CLR_RGB;
             info.format.size = GX_RGB8;
+        } else {
+            info.format.type = GX_CLR_RGBA;
+            info.format.size = GX_RGBA8;
         }
-        info.same_type = type == GL_UNSIGNED_BYTE;
+        info.same_type = type == GL_UNSIGNED_BYTE && num_components >= 3;
         break;
     }
 
@@ -555,13 +555,20 @@ struct ColorVertexReader: public GenericVertexReader<T> {
         GXColor color;
         const T *ptr = elemAt(index);
         color.r = read_color_component(ptr++);
-        color.g = read_color_component(ptr++);
-        color.b = read_color_component(ptr++);
-        if (format.num_components == 4) {
+        if (format.num_components == 4) [[likely]] {
+            color.g = read_color_component(ptr++);
+            color.b = read_color_component(ptr++);
             color.a = read_color_component(ptr++);
             GX_Color4u8(color.r, color.g, color.b, color.a);
-        } else {
+        } else if (format.num_components == 3) [[likely]] {
+            color.g = read_color_component(ptr++);
+            color.b = read_color_component(ptr++);
             GX_Color3u8(color.r, color.g, color.b);
+        } else if (format.num_components == 2) {
+            color.a = read_color_component(ptr++);
+            GX_Color4u8(color.r, color.r, color.r, color.a);
+        } else {
+            GX_Color4u8(color.r, color.r, color.r, color.r);
         }
     }
 };
