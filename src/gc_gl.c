@@ -1073,7 +1073,9 @@ void glEnd()
 
 void glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 {
-   if (width > 640) width = 640;
+    if (_ogx_fbo_state.draw_target == 0 && width > 640)
+        width = 640;
+
     glparamstate.viewport[0] = x;
     glparamstate.viewport[1] = y;
     glparamstate.viewport[2] = width;
