@@ -80,6 +80,7 @@ typedef struct
 
 char _ogx_log_level = 0;
 uint16_t _ogx_draw_sync_token = 0;
+uint16_t _ogx_draw_sync_token_received = 0;
 static OgxEfbBuffer *s_efb_scene_buffer = NULL;
 static GXTexObj s_zbuffer_texture;
 static uint8_t s_zbuffer_texels[2 * 32] ATTRIBUTE_ALIGN(32);
@@ -233,7 +234,11 @@ int ogx_enable_double_buffering(int double_buffering)
 
 int ogx_prepare_swap_buffers()
 {
-    return glparamstate.render_mode == GL_RENDER ? 0 : -1;
+    if (glparamstate.render_mode != GL_RENDER) return -1;
+    _ogx_draw_sync_token = 0;
+    GX_SetDrawSync(0);
+    _ogx_vbo_clear_unbound_buffers();
+    return 0;
 }
 
 static int parse_hints()
@@ -250,6 +255,11 @@ static int parse_hints()
     }
 
     glparamstate.hints = hints;
+}
+
+static void draw_sync_callback(u16 token)
+{
+    _ogx_draw_sync_token_received = token;
 }
 
 void ogx_initialize()
@@ -497,6 +507,8 @@ void ogx_initialize()
 
     /* Bind default texture */
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    GX_SetDrawSyncCallback(draw_sync_callback);
 
     _ogx_shader_initialize();
 }

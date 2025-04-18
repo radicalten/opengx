@@ -184,7 +184,6 @@ static inline void set_error(GLenum code)
     }
 }
 
-extern uint16_t _ogx_draw_sync_token;
 static inline uint16_t send_draw_sync_token()
 {
     uint16_t token = ++_ogx_draw_sync_token;

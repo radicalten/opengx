@@ -391,8 +391,10 @@ struct VertexReaderBase: public AbstractVertexReader {
 };
 
 struct DirectVboReader: public VertexReaderBase {
-    DirectVboReader(GxVertexFormat format, const void *data, int stride):
-        VertexReaderBase(format, data, stride ? stride : format.stride())
+    DirectVboReader(VboType vbo, GxVertexFormat format,
+                    const void *data, int stride):
+        VertexReaderBase(format, data, stride ? stride : format.stride()),
+        vbo(vbo)
     {
     }
 
@@ -401,6 +403,13 @@ struct DirectVboReader: public VertexReaderBase {
         GX_SetVtxDesc(format.attribute, GX_INDEX16);
         GX_SetVtxAttrFmt(GX_VTXFMT0, format.attribute,
                          format.type, format.size, 0);
+    }
+
+    void draw_done() override {
+        if (vbo != s_last_used_vbo) {
+            _ogx_vbo_set_in_use(vbo);
+            s_last_used_vbo = vbo;
+        }
     }
 
     void get_format(uint8_t *attribute, uint8_t *inputmode,
@@ -450,7 +459,12 @@ struct DirectVboReader: public VertexReaderBase {
      * texture coordinate generation. */
     void read_color(int index, GXColor *color) const override {}
     void read_tex2f(int index, Tex2f tex) const override {}
+
+    VboType vbo;
+    static VboType s_last_used_vbo;
 };
+
+VboType DirectVboReader::s_last_used_vbo = 0;
 
 template <typename T>
 struct GenericVertexReader: public VertexReaderBase {
@@ -634,6 +648,7 @@ void _ogx_arrays_draw_done()
 {
     int num_arrays = count_attributes();
 
+    DirectVboReader::s_last_used_vbo = 0;
     for (int i = 0; i < num_arrays; i++) {
         get_reader(&s_readers[i])->draw_done();
     }
@@ -779,7 +794,7 @@ OgxArrayReader *_ogx_array_add(uint8_t attribute, const OgxVertexAttribArray *ar
         /* No conversions needed, just dump the data from the array directly
          * into the GX pipe. */
         if (array->vbo) {
-            new (reader) DirectVboReader(info.format, data, stride);
+            new (reader) DirectVboReader(array->vbo, info.format, data, stride);
             return reader;
         }
         switch (type) {

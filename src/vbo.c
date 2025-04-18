@@ -35,18 +35,26 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <malloc.h>
 
-typedef struct {
+typedef struct _VertexBuffer VertexBuffer;
+
+struct _VertexBuffer {
     size_t size;
     unsigned mapped : 1;
+    uint16_t last_sync_token_sent;
+    VertexBuffer *next_unbound;
+
     /* The buffer data are stored in the same memory block at the end of this
      * struct */
     _Alignas(4) uint8_t data[0];
-} VertexBuffer;
+};
 
 #define MAX_VBOS 256 /* Check the size of _ogx_state.bound_vbo_* members if
                         increasing this! */
 
 static VertexBuffer *s_buffers[MAX_VBOS];
+/* List of unbound buffers; we can free them once their sync token has been
+ * received */
+static VertexBuffer *s_unbound_buffers = NULL;
 
 #define RESERVED_PTR ((void*)0x1)
 #define VBO_IS_USED(vbo) \
@@ -83,6 +91,30 @@ static int get_index_for_target(GLenum target)
     }
 
     return active_vbo - 1;
+}
+
+static void check_releasable_unbound_buffers(bool delete_all)
+{
+    VertexBuffer **prev_ptr = &s_unbound_buffers;
+    VertexBuffer *buffer = s_unbound_buffers;
+    while (buffer) {
+        VertexBuffer *next = buffer->next_unbound;
+        if (delete_all ||
+            _ogx_draw_sync_token_received >= buffer->last_sync_token_sent) {
+            /* Buffer is done, we can release it */
+            free(buffer);
+            *prev_ptr = next;
+        } else {
+            prev_ptr = &buffer->next_unbound;
+        }
+        buffer = next;
+    }
+}
+
+static void move_to_unbound_list(VertexBuffer *buffer)
+{
+    buffer->next_unbound = s_unbound_buffers;
+    s_unbound_buffers = buffer;
 }
 
 void glBindBuffer(GLenum target, GLuint buffer)
@@ -149,7 +181,18 @@ static void set_buffer_data(GLenum target, GLintptr offset, GLsizeiptr size,
 
     VertexBuffer *buffer = s_buffers[index];
     if (must_allocate) {
-        if (buffer && buffer != RESERVED_PTR) free(buffer);
+        if (s_unbound_buffers)
+            check_releasable_unbound_buffers(false);
+
+        if (buffer && buffer != RESERVED_PTR) {
+            if (buffer->last_sync_token_sent > _ogx_draw_sync_token_received) {
+                /* Buffer is still in use by the GPU, we can't free it right
+                 * now */
+                move_to_unbound_list(buffer);
+            } else {
+                free(buffer);
+            }
+        }
         buffer = s_buffers[index] = malloc(sizeof(VertexBuffer) + size);
         if (!buffer) {
             warning("Out of memory allocating a VBO");
@@ -158,6 +201,8 @@ static void set_buffer_data(GLenum target, GLintptr offset, GLsizeiptr size,
         }
         buffer->size = size;
         buffer->mapped = false;
+        buffer->last_sync_token_sent = 0;
+        buffer->next_unbound = NULL;
     }
 
     if (!buffer) {
@@ -165,6 +210,11 @@ static void set_buffer_data(GLenum target, GLintptr offset, GLsizeiptr size,
         return;
     }
     if (data) {
+        if (buffer->last_sync_token_sent != 0) {
+            /* We must wait for the draw operation to complete */
+            while (GX_GetDrawSync() < buffer->last_sync_token_sent);
+            buffer->last_sync_token_sent = 0;
+        }
         memcpy(buffer->data + offset, data, size);
         DCStoreRangeNoSync(buffer->data + offset, size);
     }
@@ -267,4 +317,16 @@ void glGetBufferPointerv(GLenum target, GLenum pname, void **params)
 void *_ogx_vbo_get_data(VboType vbo, const void *offset)
 {
     return s_buffers[vbo - 1]->data + (int)offset;
+}
+
+void _ogx_vbo_set_in_use(VboType vbo)
+{
+    int index = vbo - 1;
+    if (!VBO_IS_USED(index)) return;
+    s_buffers[index]->last_sync_token_sent = send_draw_sync_token();
+}
+
+void _ogx_vbo_clear_unbound_buffers()
+{
+    check_releasable_unbound_buffers(true);
 }

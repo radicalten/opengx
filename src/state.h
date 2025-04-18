@@ -350,6 +350,9 @@ typedef struct glparams_
 
 extern glparams_ _ogx_state;
 
+extern uint16_t _ogx_draw_sync_token;
+extern uint16_t _ogx_draw_sync_token_received;
+
 /* To avoid renaming all the variables */
 #define glparamstate _ogx_state
 #define texture_list _ogx_state.textures
