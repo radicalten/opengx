@@ -5,5 +5,6 @@ includedir=${prefix}/include
 Name: OpenGL
 Description: OpenGL (without GLX) library and headers.
 Version: @PROJECT_VERSION@
+Libs.private: -lstdc++ -logc -lm
 Libs: -L${libdir} -lopengx
 Cflags: -I${includedir}
