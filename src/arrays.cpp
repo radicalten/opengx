@@ -40,7 +40,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <cstring>
 #include <limits>
 #include <ogc/gx.h>
-#include <variant>
+#include <new>
 
 #define MAX_TEXCOORDS 8 /* GX_VA_TEX7 - GX_VA_TEX8 */
 
