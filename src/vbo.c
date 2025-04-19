@@ -203,6 +203,7 @@ static void set_buffer_data(GLenum target, GLintptr offset, GLsizeiptr size,
         buffer->mapped = false;
         buffer->last_sync_token_sent = 0;
         buffer->next_unbound = NULL;
+        glparamstate.dirty.bits.dirty_attributes = 1;
     }
 
     if (!buffer) {
