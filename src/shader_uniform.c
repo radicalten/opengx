@@ -135,8 +135,8 @@ static void set_uniform_matrices(GLint location, GLsizei count,
         if (transpose) {
             for (int r = 0; r < rows; r++)
                 for (int c = 0; c < cols; c++) {
-                m[c * rows + r] = src[r * cols + c];
-            }
+                    m[c * rows + r] = src[r * cols + c];
+                }
             matrix = m;
         } else {
             matrix = src;
