@@ -33,6 +33,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef OPENGX_EFB_H
 #define OPENGX_EFB_H
 
+#include "fbo.h"
+
 #include <GL/gl.h>
 #include <malloc.h>
 #include <ogc/gx.h>
@@ -48,12 +50,6 @@ typedef enum {
     OGX_EFB_COLOR = 1 << 1,
     OGX_EFB_ZBUFFER = 1 << 2,
 } OgxEfbFlags;
-
-typedef enum {
-    OGX_EFB_SCENE = 1,
-    OGX_EFB_STENCIL,
-    OGX_EFB_ACCUM,
-} OgxEfbContentType;
 
 extern OgxEfbContentType _ogx_efb_content_type;
 
@@ -89,7 +85,9 @@ void _ogx_efb_set_content_type_real(OgxEfbContentType content_type);
 /* We inline this part since most of the times the desired content type will be
  * the one already active */
 static inline void _ogx_efb_set_content_type(OgxEfbContentType content_type) {
-    if (content_type == _ogx_efb_content_type) return;
+    if (content_type == _ogx_efb_content_type &&
+        (content_type != OGX_EFB_SCENE || _ogx_fbo_state.dirty.all == 0))
+        return;
     _ogx_efb_set_content_type_real(content_type);
 }
 

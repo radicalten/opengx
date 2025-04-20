@@ -354,6 +354,8 @@ extern glparams_ _ogx_state;
 #define texture_list _ogx_state.textures
 
 void _ogx_apply_state(void);
+void _ogx_scene_save_from_efb(void);
+void _ogx_scene_load_into_efb(void);
 void _ogx_update_matrices(void);
 void _ogx_update_matrices_fixed_pipeline(void);
 

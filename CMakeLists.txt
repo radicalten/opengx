@@ -32,6 +32,8 @@ add_library(${TARGET} STATIC
     src/debug.h
     src/efb.c
     src/efb.h
+    src/fbo.c
+    src/fbo.h
     src/functions.c
     src/gc_gl.c
     src/getters.c

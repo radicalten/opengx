@@ -42,11 +42,19 @@ POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
+typedef enum {
+    OGX_EFB_SCENE = 1,
+    OGX_EFB_STENCIL,
+    OGX_EFB_ACCUM,
+} OgxEfbContentType;
+
 #define MAX_VERTEX_ATTRIBS 16
 
 /* Now we support as much as 255 VBOs, but, should we support more, we'll need
  * to use a larger type for the index. */
 typedef uint8_t VboType;
+
+typedef uint8_t FboType;
 
 typedef float Pos3f[3];
 typedef float Norm3f[3];

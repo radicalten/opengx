@@ -31,6 +31,7 @@ POSSIBILITY OF SUCH DAMAGE.
 *****************************************************************************/
 
 #include "debug.h"
+#include "fbo.h"
 #include "utils.h"
 #include "state.h"
 #include "stencil.h"
@@ -503,7 +504,7 @@ void glGetIntegerv(GLenum pname, GLint *params)
         }
         return;
     default:
-        return;
+        if (_ogx_fbo_get_integerv(pname, params)) return;
     };
 }
 

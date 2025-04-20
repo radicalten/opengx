@@ -508,7 +508,8 @@ void _ogx_setup_3D_projection()
     update_projection_matrix();
 }
 
-static void scene_save_from_efb()
+/* This is called by _ogx_fbo_scene_save_from_efb() */
+void _ogx_scene_save_from_efb()
 {
     _ogx_efb_buffer_prepare(&s_efb_scene_buffer, GX_TF_RGBA8);
     if (s_efb_scene_buffer->draw_count == glparamstate.draw_count) return;
@@ -518,10 +519,18 @@ static void scene_save_from_efb()
     s_efb_scene_buffer->draw_count = glparamstate.draw_count;
 }
 
-static void scene_load_into_efb()
+/* This is called by _ogx_fbo_scene_load_into_efb() */
+void _ogx_scene_load_into_efb()
 {
     if (!s_efb_scene_buffer) return;
+    if (_ogx_efb_content_type == OGX_EFB_SCENE &&
+        s_efb_scene_buffer->draw_count == glparamstate.draw_count) {
+        /* Up to date */
+        return;
+    }
+    _ogx_efb_set_pixel_format(GX_PF_RGB8_Z24);
     _ogx_efb_restore_texobj(&s_efb_scene_buffer->texobj);
+    s_efb_scene_buffer->draw_count = glparamstate.draw_count;
     _ogx_setup_3D_projection();
 }
 
@@ -533,7 +542,7 @@ void _ogx_efb_set_content_type_real(OgxEfbContentType content_type)
     /* Save existing EFB contents, if needed */
     switch (_ogx_efb_content_type) {
     case OGX_EFB_SCENE:
-        scene_save_from_efb();
+        _ogx_fbo_scene_save_from_efb(content_type);
         break;
     case OGX_EFB_STENCIL:
         _ogx_stencil_save_from_efb();
@@ -546,7 +555,7 @@ void _ogx_efb_set_content_type_real(OgxEfbContentType content_type)
     /* Restore data from previously stored EFB for this content type */
     switch (content_type) {
     case OGX_EFB_SCENE:
-        scene_load_into_efb();
+        _ogx_fbo_scene_load_into_efb();
         break;
     case OGX_EFB_STENCIL:
         _ogx_stencil_load_into_efb();
@@ -1054,7 +1063,9 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
         glparamstate.scissor[3] = height;
     }
     glparamstate.dirty.bits.dirty_scissor = 1;
-    _ogx_stencil_update();
+    if (_ogx_fbo_state.draw_target == 0) {
+        _ogx_stencil_update();
+    }
 }
 
 void glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
