@@ -122,10 +122,20 @@ void _ogx_efb_restore_texobj(GXTexObj *texobj)
 
 void _ogx_efb_buffer_prepare(OgxEfbBuffer **buffer, uint8_t format)
 {
-    if (*buffer) return;
-
     u16 width = glparamstate.viewport[2];
     u16 height = glparamstate.viewport[3];
+    if (*buffer) {
+        void *texels;
+        u8 oldformat, unused;
+        u16 oldwidth, oldheight;
+        GX_GetTexObjAll(&(*buffer)->texobj, &texels, &oldwidth, &oldheight, &oldformat,
+                        &unused, &unused, &unused);
+        if (width == oldwidth && height == oldheight) return;
+        free(*buffer);
+    }
+
+    if (width == 0) width =1;
+    if (height == 0) height = 1;
     u32 size = GX_GetTexBufferSize(width, height, format, 0, GX_FALSE);
     OgxEfbBuffer *b = memalign(32, size + sizeof(OgxEfbBuffer));
     void *texels = &(b->texels[0]);
@@ -137,26 +147,6 @@ void _ogx_efb_buffer_prepare(OgxEfbBuffer **buffer, uint8_t format)
                      0.0f, 0.0f, 0.0f, 0, 0, GX_ANISO_1);
     b->draw_count = 0;
     *buffer = b;
-}
-
-void _ogx_efb_buffer_handle_resize(OgxEfbBuffer **buffer)
-{
-    /* If no buffer was allocated, nothing to do */
-    if (!*buffer) return;
-
-    void *texels;
-    u8 format, unused;
-    u16 oldwidth, oldheight;
-    GX_GetTexObjAll(&(*buffer)->texobj, &texels, &oldwidth, &oldheight, &format,
-                    &unused, &unused, &unused);
-
-    u16 width = glparamstate.viewport[2];
-    u16 height = glparamstate.viewport[3];
-    if (width != oldwidth || height != oldheight) {
-        free(*buffer);
-        *buffer = NULL;
-        _ogx_efb_buffer_prepare(buffer, format);
-    }
 }
 
 void _ogx_efb_buffer_save(OgxEfbBuffer *buffer, OgxEfbFlags flags)

@@ -76,7 +76,6 @@ typedef struct {
 } OgxEfbBuffer;
 
 void _ogx_efb_buffer_prepare(OgxEfbBuffer **buffer, uint8_t format);
-void _ogx_efb_buffer_handle_resize(OgxEfbBuffer **buffer);
 void _ogx_efb_buffer_save(OgxEfbBuffer *buffer, OgxEfbFlags flags);
 static inline void *_ogx_efb_buffer_get_texels(OgxEfbBuffer *buffer) {
     void *texels = GX_GetTexObjData(&buffer->texobj);

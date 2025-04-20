@@ -1055,7 +1055,6 @@ void glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
     }
     glparamstate.dirty.bits.dirty_scissor = 1;
     _ogx_stencil_update();
-    _ogx_efb_buffer_handle_resize(&s_efb_scene_buffer);
 }
 
 void glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
