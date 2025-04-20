@@ -457,6 +457,13 @@ void glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
 
     uint8_t gx_format = _ogx_find_best_gx_format(format, internalFormat,
                                                  width, height);
+    if (!data) {
+        /* This typically happens when setting up a texture for attaching it to
+         * a FBO; in this case, make sure that the format is not compressed,
+         * since GX does not support copying the EFB into a compressed texture.
+         */
+        if (gx_format == GX_TF_CMPR) gx_format = GX_TF_RGB565;
+    }
 
     // We *may* need to delete and create a new texture, depending if the user wants to add some mipmap levels
     // or wants to create a new texture from scratch
