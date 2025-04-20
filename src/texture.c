@@ -463,14 +463,19 @@ void glTexImage2D(GLenum target, GLint level, GLint internalFormat, GLsizei widt
     if (wi != ti.width || he != ti.height) {
         if (ti.texels != 0)
             free(ti.texels);
+        uint32_t required_size;
         if (level == 0) {
-            uint32_t required_size = calc_memory(width, height, ti.format);
-            ti.texels = memalign(32, required_size);
+            required_size = calc_memory(width, height, ti.format);
             onelevel = 1;
         } else {
-            uint32_t required_size = calc_tex_size(wi, he, ti.format);
-            ti.texels = memalign(32, required_size);
+            required_size = calc_tex_size(wi, he, ti.format);
             onelevel = 0;
+        }
+        ti.texels = memalign(32, required_size);
+        if (!ti.texels) {
+            warning("Failed to allocate %u bytes for texture", required_size);
+            set_error(GL_OUT_OF_MEMORY);
+            return;
         }
         ti.minlevel = level;
         ti.maxlevel = level;
