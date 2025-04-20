@@ -57,6 +57,8 @@ typedef enum {
 
 extern OgxEfbContentType _ogx_efb_content_type;
 
+bool _ogx_efb_set_pixel_format(uint8_t pixel_format);
+
 void _ogx_efb_save_to_buffer(uint8_t format, uint16_t width, uint16_t height,
                              void *texels, OgxEfbFlags flags);
 void _ogx_efb_save_area_to_buffer(uint8_t format,

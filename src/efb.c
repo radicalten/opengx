@@ -40,6 +40,15 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <malloc.h>
 
 OgxEfbContentType _ogx_efb_content_type = OGX_EFB_SCENE;
+uint8_t s_efb_pixel_format = GX_PF_RGB8_Z24; /* Set by GX_Init() */
+
+bool _ogx_efb_set_pixel_format(uint8_t pixel_format)
+{
+    if (pixel_format == s_efb_pixel_format) return false;
+    GX_SetPixelFmt(pixel_format, GX_ZC_LINEAR);
+    s_efb_pixel_format = pixel_format;
+    return true;
+}
 
 void _ogx_efb_save_area_to_buffer(uint8_t format,
                                   uint16_t x, uint16_t y,
