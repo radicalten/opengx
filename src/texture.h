@@ -37,6 +37,7 @@ extern "C" {
 #endif
 
 #include <GL/gl.h>
+#include <ogc/gx.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -76,6 +77,7 @@ typedef struct {
 } OgxTextureInfo;
 
 bool _ogx_texture_get_info(GLuint texture_name, OgxTextureInfo *info);
+bool _ogx_texture_get_texobj(GLuint texture_name, GXTexObj *texobj);
 
 #ifdef __cplusplus
 } // extern C

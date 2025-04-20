@@ -135,6 +135,15 @@ bool _ogx_texture_get_info(GLuint texture_name, OgxTextureInfo *info)
     return true;
 }
 
+bool _ogx_texture_get_texobj(GLuint texture_name, GXTexObj *texobj)
+{
+    if (!TEXTURE_IS_RESERVED(texture_list[texture_name]))
+        return false;
+
+    memcpy(texobj, &texture_list[texture_name].texobj, sizeof(*texobj));
+    return true;
+}
+
 void glTexParameterf(GLenum target, GLenum pname, GLfloat param)
 {
     /* For the time being, all the parameters we support take integer values */
