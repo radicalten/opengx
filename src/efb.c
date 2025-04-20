@@ -93,6 +93,9 @@ void _ogx_efb_restore_texobj(GXTexObj *texobj)
     GX_SetCullMode(GX_CULL_NONE);
     glparamstate.dirty.bits.dirty_cull = 1;
 
+    GX_SetScissor(0, 0, width, height);
+    glparamstate.dirty.bits.dirty_scissor = 1;
+
     GX_SetZMode(GX_FALSE, GX_ALWAYS, GX_FALSE);
     glparamstate.dirty.bits.dirty_z = 1;
 
