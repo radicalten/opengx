@@ -193,7 +193,8 @@ static void set_buffer_data(GLenum target, GLintptr offset, GLsizeiptr size,
                 free(buffer);
             }
         }
-        buffer = s_buffers[index] = malloc(sizeof(VertexBuffer) + size);
+        size = (size + 31) / 32 * 32;
+        buffer = s_buffers[index] = memalign(32, sizeof(VertexBuffer) + size);
         if (!buffer) {
             warning("Out of memory allocating a VBO");
             set_error(GL_OUT_OF_MEMORY);
