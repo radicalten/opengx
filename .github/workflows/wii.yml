@@ -3,7 +3,7 @@ name: Wii CI
 on:
   push:
     branches:
-    - master
+    - main
 
 jobs:
   wii:
