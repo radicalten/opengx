@@ -2,11 +2,8 @@ name: Documentation
 
 on:
   push:
-    paths:
-      - 'doc/**'
-  pull_request:
-    paths:
-      - 'doc/**'
+    branches:
+    - main
 
 jobs:
   docs:
