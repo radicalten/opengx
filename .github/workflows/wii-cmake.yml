@@ -24,7 +24,7 @@ jobs:
   
 
     - name: Configure CMake
-      run: cmake -S ./examples/sdl2 -B build
+      run: cmake -S . -B build -DBUILD_EXAMPLES=ON
 
     - name: Build
       run: cmake --build build
