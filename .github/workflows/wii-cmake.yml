@@ -22,23 +22,9 @@ jobs:
         sudo dkp-pacman -Sy
         sudo dkp-pacman -S --noconfirm --ask 4 gamecube-tools-git libogc2 libogc2-libdvm libogc2-opengx libogc2-glu libogc2-sdl2 ppc-glm ppc-libpng libogc2-cmake ppc-zlib-ng-compat
 
-    - name: add ppc gcc to PATH environment variable
-      uses: myci-actions/export-env-var@1
-      with:
-        name: PATH
-        value: $PATH:/opt/devkitpro/devkitPPC/bin
-
-    - name: Export CFLAGS
-      uses: myci-actions/export-env-var@1
-      with:
-        name: CFLAGS
-        value: -O3 -fipa-pta -flto -DNDEBUG
-
-    - name: Export CXXFLAGS
-      uses: myci-actions/export-env-var@1
-      with:
-        name: CXXFLAGS
-        value: -O3 -fipa-pta -flto -DNDEBUG
+    - name: CMake Configure
+      run: |
+          cmake -DCMAKE_TOOLCHAIN_FILE=wii.toolchain.cmake ..
 
     - name: Configure CMake
       run: cmake -S . -B build -DBUILD_EXAMPLES=ON -DBUILD_OPENGX=OFF
