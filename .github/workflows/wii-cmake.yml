@@ -22,9 +22,17 @@ jobs:
         sudo dkp-pacman -Sy
         sudo dkp-pacman -S --noconfirm --ask 4 gamecube-tools-git libogc2 libogc2-libdvm libogc2-opengx libogc2-glu libogc2-sdl2 ppc-glm ppc-libpng libogc2-cmake ppc-zlib-ng-compat
 
-    - name: CMake Configure
+    
+    - name: CMake Configure without toolchain file
       run: |
-          cmake -DCMAKE_TOOLCHAIN_FILE=wii.toolchain.cmake
+               cmake -DCMAKE_C_COMPILER=powerpc-eabi-gcc \
+                -DCMAKE_CXX_COMPILER=powerpc-eabi-g++ \
+                -DCMAKE_SYSTEM_NAME=Wii \
+                -DCMAKE_FIND_ROOT_PATH=$DEVKITPPC/wii \
+                -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
+                -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
+                -DCMAKE_SYSROOT=$DEVKITPPC/wii \
+                -DCMAKE_CROSSCOMPILING=TRUE \
 
     - name: Configure CMake
       run: cmake -S . -B build -DBUILD_EXAMPLES=ON -DBUILD_OPENGX=OFF
