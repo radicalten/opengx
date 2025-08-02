@@ -24,7 +24,7 @@ jobs:
 
     - name: CMake Configure
       run: |
-          cmake -DCMAKE_TOOLCHAIN_FILE=wii.toolchain.cmake ..
+          cmake -DCMAKE_TOOLCHAIN_FILE=wii.toolchain.cmake
 
     - name: Configure CMake
       run: cmake -S . -B build -DBUILD_EXAMPLES=ON -DBUILD_OPENGX=OFF
