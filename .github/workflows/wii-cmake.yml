@@ -24,7 +24,7 @@ jobs:
   
 
     - name: Configure CMake
-      run: cmake -S . -B build -DBUILD_EXAMPLES=ON
+      run: cmake -S . -B build -DBUILD_EXAMPLES=ON -DBUILD_OPENGX=OFF
 
     - name: Build
       run: cmake --build build
