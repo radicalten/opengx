@@ -22,7 +22,14 @@ jobs:
         sudo dkp-pacman -Sy
         sudo dkp-pacman -S --noconfirm --ask 4 gamecube-tools-git libogc2 libogc2-libdvm libogc2-opengx libogc2-glu libogc2-sdl2 ppc-glm ppc-libpng libogc2-cmake ppc-zlib-ng-compat
 
-    
+
+    - name: add ppc gcc to PATH environment variable
+      uses: myci-actions/export-env-var@1
+      with:
+        name: PATH
+        value: $PATH:/opt/devkitpro/devkitPPC/bin
+
+        
     - name: CMake Configure without toolchain file
       run: |
                cmake -DCMAKE_C_COMPILER=powerpc-eabi-gcc \
