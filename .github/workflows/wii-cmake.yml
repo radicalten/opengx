@@ -28,6 +28,18 @@ jobs:
         name: PATH
         value: $PATH:/opt/devkitpro/devkitPPC/bin
 
+    - name: Export CFLAGS
+      uses: myci-actions/export-env-var@1
+      with:
+        name: CFLAGS
+        value: -O3 -fipa-pta -flto -DNDEBUG
+
+    - name: Export CXXFLAGS
+      uses: myci-actions/export-env-var@1
+      with:
+        name: CXXFLAGS
+        value: -O3 -fipa-pta -flto -DNDEBUG
+
     - name: Configure CMake
       run: cmake -S . -B build -DBUILD_EXAMPLES=ON -DBUILD_OPENGX=OFF
 
