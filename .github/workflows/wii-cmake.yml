@@ -6,11 +6,20 @@ on:
     - master
 
 jobs:
-  build:
-    name: Build CubeSX/WiiSX
+  build-wii:
     runs-on: ubuntu-latest
     container: devkitpro/devkitppc:latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+        with:
+        path: pcsxgc
 
+   - name: Checkout pcsxgc
+      uses: actions/checkout@master
+     # with:
+       # path: pcsxgc
+        
     steps:
     - name: Install packages
       run: |
@@ -21,11 +30,6 @@ jobs:
         sudo dkp-pacman -Sy
         sudo dkp-pacman -S --noconfirm --ask 4 gamecube-tools-git libogc2 libogc2-cmake libogc2-libdvm ppc-zlib-ng-compat
  
-    - name: Checkout pcsxgc
-      uses: actions/checkout@master
-      with:
-        path: pcsxgc
-
     - name: add ppc gcc to PATH environment variable
       uses: myci-actions/export-env-var@1
       with:
