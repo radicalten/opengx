@@ -21,7 +21,9 @@ jobs:
         sudo echo -e '[extremscorner-devkitpro]\nServer = https://packages.extremscorner.org/devkitpro/linux/$arch' >> /opt/devkitpro/pacman/etc/pacman.conf
         sudo dkp-pacman -Sy
         sudo dkp-pacman -S --noconfirm --ask 4 gamecube-tools-git libogc2 libogc2-cmake libogc2-libdvm ppc-zlib-ng-compat
- 
+
+    - name: Configure CMake
+      run: cmake -S . -B build
+
     - name: Build
       run: cmake --build build
-
